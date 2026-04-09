@@ -118,7 +118,12 @@ export default function GameScreen() {
 
     setIsHintLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "undefined") {
+        throw new Error("MISSING_API_KEY");
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `You are a math game assistant. The user is playing a game where they must use exactly 5 numbers to reach a target result using basic operators (+, -, *, /) and parentheses.
@@ -129,9 +134,13 @@ export default function GameScreen() {
       
       setHint(response.text || "ขออภัย ไม่สามารถสร้างคำใบ้ได้ในขณะนี้");
       setShowHintModal(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching hint:", error);
-      setHint("เกิดข้อผิดพลาดในการดึงคำใบ้ กรุณาลองใหม่อีกครั้ง");
+      if (error.message === "MISSING_API_KEY") {
+        setHint("ไม่พบ API Key สำหรับ Gemini AI กรุณาตั้งค่า GEMINI_API_KEY ใน Environment Variables ของ Netlify แล้วทำการ Deploy ใหม่");
+      } else {
+        setHint("เกิดข้อผิดพลาดในการดึงคำใบ้ กรุณาลองใหม่อีกครั้ง");
+      }
       setShowHintModal(true);
     } finally {
       setIsHintLoading(false);
@@ -147,7 +156,12 @@ export default function GameScreen() {
 
     setIsSolutionLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "undefined") {
+        throw new Error("MISSING_API_KEY");
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: `You are a math game assistant. The user is playing a game where they must use exactly 5 numbers to reach a target result using basic operators (+, -, *, /) and parentheses.
@@ -158,9 +172,13 @@ export default function GameScreen() {
       
       setSolution(response.text || "ขออภัย ไม่สามารถสร้างเฉลยได้ในขณะนี้");
       setShowSolutionModal(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching solution:", error);
-      setSolution("เกิดข้อผิดพลาดในการดึงเฉลย กรุณาลองใหม่อีกครั้ง");
+      if (error.message === "MISSING_API_KEY") {
+        setSolution("ไม่พบ API Key สำหรับ Gemini AI กรุณาตั้งค่า GEMINI_API_KEY ใน Environment Variables ของ Netlify แล้วทำการ Deploy ใหม่");
+      } else {
+        setSolution("เกิดข้อผิดพลาดในการดึงเฉลย กรุณาลองใหม่อีกครั้ง");
+      }
       setShowSolutionModal(true);
     } finally {
       setIsSolutionLoading(false);
